@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'pages/splash_screen.dart';
 import 'pages/login_page.dart';
+import 'pages/user_type_selection.dart';
 import 'pages/home.dart';
 import 'pages/rider/rider_home.dart';
 import 'pages/driver/driver_home.dart';
@@ -52,6 +53,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/': (context) => const SplashScreen(),
           '/login': (context) => const LoginPage(),
+          '/user-type-selection': (context) => const UserTypeSelection(),
           '/home': (context) => const HomePage(),
           '/rider': (context) => const RiderHome(),
           '/driver': (context) => const DriverHome(),

@@ -119,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
     await Future.delayed(const Duration(seconds: 2));
     
     if (mounted) {
-      Navigator.pushReplacementNamed(context, '/home');
+      Navigator.pushReplacementNamed(context, '/user-type-selection');
     }
   }
 
