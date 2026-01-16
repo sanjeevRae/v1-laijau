@@ -3,6 +3,7 @@ import 'dart:developer' as developer;
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:laijau/pages/profile_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -20,6 +21,16 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
     _getCurrentLocation();
+  }
+
+  @override
+  void dispose() {
+    _fromController.dispose();
+    _toController.dispose();
+    for (var controller in _stopControllers) {
+      controller.dispose();
+    }
+    super.dispose();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -49,6 +60,23 @@ class _HomePageState extends State<HomePage> {
       developer.log('Error getting location', error: e, name: 'HomePage');
     }
   }
+
+  // Controllers for the 'from' and 'to' fields
+  final TextEditingController _fromController = TextEditingController();
+  final TextEditingController _toController = TextEditingController();
+  
+  // Selected vehicle type
+  String _selectedVehicle = 'car'; // default to car
+  
+  bool _isSearchExpanded = false;
+  
+  List<TextEditingController> _stopControllers = [];
+  List<String> _recentLocations = [
+    'Kathmandu Durbar Square',
+    'Thamel, Kathmandu',
+    'Tribhuvan International Airport',
+    'Patan Durbar Square',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -88,114 +116,87 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
 
-          // Search Bar with Menu Button
+          // Top left nav/menu button
           Positioned(
-            top: 50,
+            top: 40,
             left: 16,
-            right: 16,
-            child: Row(
-              children: [
-                Builder(
-                  builder: (context) => Container(
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(12),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.black.withValues(alpha: 0.1),
-                          blurRadius: 8,
-                          offset: Offset(0, 2),
-                        ),
-                      ],
+            child: Builder(
+              builder: (context) => Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.08),
+                      blurRadius: 8,
+                      offset: Offset(0, 2),
                     ),
-                    child: IconButton(
-                      icon: Icon(Icons.menu, color: Colors.black),
-                      onPressed: () => Scaffold.of(context).openDrawer(),
-                    ),
-                  ),
+                  ],
                 ),
-                SizedBox(width: 12),
-                Expanded(
-                  child: Card(
-                    elevation: 8,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                      child: Row(
-                        children: [
-                          Icon(Icons.search, color: Colors.grey),
-                          SizedBox(width: 12),
-                          Expanded(
-                            child: TextField(
-                              decoration: InputDecoration(
-                                hintText: 'Where to?',
-                                border: InputBorder.none,
-                              ),
-                              onTap: () {
-                                // Search functionality
-                              },
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
+                child: IconButton(
+                  icon: Icon(Icons.menu, color: Colors.black),
+                  onPressed: () => Scaffold.of(context).openDrawer(),
                 ),
-              ],
+              ),
             ),
           ),
 
-          // Bottom Sheet
+          // Navigation button at bottom right
+          Positioned(
+            bottom: 360, // Above the search bar with more clearance
+            right: 16,
+            child: Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                shape: BoxShape.circle,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.2),
+                    blurRadius: 16,
+                    offset: Offset(0, 6),
+                  ),
+                ],
+              ),
+              child: Material(
+                color: Colors.transparent,
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(50),
+                  onTap: () {
+                    // Center map on current location
+                    if (_currentPosition != null) {
+                      _mapController.move(_currentPosition!, 15.0);
+                    }
+                  },
+                  child: Padding(
+                    padding: EdgeInsets.all(14),
+                    child: Icon(Icons.navigation, color: Colors.green[700], size: 28),
+                  ),
+                ),
+              ),
+            ),
+          ),
+
+          // Bottom Uber-style Search Bar (without nav button)
           Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(
+            child: AnimatedContainer(
+              duration: Duration(milliseconds: 300),
+              height: _isSearchExpanded ? MediaQuery.of(context).size.height * 0.75 : null,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha: 0.1),
+                    color: Colors.black.withOpacity(0.08),
                     blurRadius: 10,
                     offset: Offset(0, -5),
                   ),
                 ],
               ),
-              padding: EdgeInsets.all(20),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Plan your ride',
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 20),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Book ride functionality
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      minimumSize: Size(double.infinity, 56),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                    ),
-                    child: Text(
-                      'Book a Ride',
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ],
-              ),
+              padding: EdgeInsets.fromLTRB(20, 20, 20, 32),
+              child: _isSearchExpanded ? _buildExpandedSearch() : _buildCompactSearch(),
             ),
           ),
 
@@ -212,6 +213,383 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
+  Widget _buildCompactSearch() {
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Vehicle Type Selection - Horizontal Scroll
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _buildVehicleOption(
+                icon: Icons.two_wheeler,
+                label: 'Bike',
+                value: 'motorcycle',
+              ),
+              SizedBox(width: 10),
+              _buildVehicleOption(
+                icon: Icons.directions_car,
+                label: 'Car',
+                value: 'car',
+              ),
+              SizedBox(width: 10),
+              _buildVehicleOption(
+                icon: Icons.car_rental,
+                label: 'Premium',
+                value: 'carplus',
+              ),
+              SizedBox(width: 10),
+              _buildVehicleOption(
+                icon: Icons.delivery_dining,
+                label: 'Delivery',
+                value: 'delivery',
+              ),
+            ],
+          ),
+        ),
+        SizedBox(height: 20),
+        // FROM field (man hailing hand icon, pickup location)
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: TextField(
+            controller: _fromController,
+            onTap: () {
+              setState(() {
+                _isSearchExpanded = true;
+              });
+            },
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.emoji_people, color: Colors.green),
+              hintText: 'What is your pickup location?',
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+            ),
+          ),
+        ),
+        SizedBox(height: 10),
+        // TO field (location icon, destination, plus icon)
+        Container(
+          decoration: BoxDecoration(
+            color: Colors.grey[100],
+            borderRadius: BorderRadius.circular(10),
+          ),
+          child: TextField(
+            controller: _toController,
+            onTap: () {
+              setState(() {
+                _isSearchExpanded = true;
+              });
+            },
+            decoration: InputDecoration(
+              prefixIcon: Icon(Icons.location_on, color: Colors.red),
+              hintText: 'Where are you going?',
+              border: InputBorder.none,
+              contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+              suffixIcon: IconButton(
+                icon: Icon(Icons.add, color: Colors.grey),
+                onPressed: () {
+                  setState(() {
+                    _isSearchExpanded = true;
+                    _addStop();
+                  });
+                },
+              ),
+            ),
+          ),
+        ),
+        SizedBox(height: 20),
+        ElevatedButton(
+          onPressed: () {
+            // Book ride functionality
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green[700],
+            foregroundColor: Colors.white,
+            minimumSize: Size(double.infinity, 56),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Text(
+            'Book a Ride',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildExpandedSearch() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        // Header with back button
+        Row(
+          children: [
+            IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () {
+                setState(() {
+                  _isSearchExpanded = false;
+                });
+              },
+            ),
+            Text(
+              'Plan Your Route',
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        SizedBox(height: 20),
+        Expanded(
+          child: SingleChildScrollView(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // FROM field
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: TextField(
+                    controller: _fromController,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.emoji_people, color: Colors.green),
+                      hintText: 'What is your pickup location?',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 10),
+                // TO field
+                Container(
+                  decoration: BoxDecoration(
+                    color: Colors.grey[100],
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: TextField(
+                    controller: _toController,
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.location_on, color: Colors.red),
+                      hintText: 'Where are you going?',
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                      suffixIcon: IconButton(
+                        icon: Icon(Icons.add, color: Colors.green[700]),
+                        onPressed: _addStop,
+                      ),
+                    ),
+                  ),
+                ),
+                
+                // Multiple stops
+                ..._stopControllers.asMap().entries.map((entry) {
+                  int index = entry.key;
+                  TextEditingController controller = entry.value;
+                  return Padding(
+                    padding: EdgeInsets.only(top: 10),
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: TextField(
+                        controller: controller,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.add_location, color: Colors.orange),
+                          hintText: 'Add stop ${index + 1}',
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                          suffixIcon: IconButton(
+                            icon: Icon(Icons.close, color: Colors.red),
+                            onPressed: () => _removeStop(index),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+                
+                // Helper message
+                if (_stopControllers.isNotEmpty)
+                  Padding(
+                    padding: EdgeInsets.only(top: 8, left: 8),
+                    child: Text(
+                      'Please keep the stops under 5 mins.',
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: Colors.grey[600],
+                        fontStyle: FontStyle.italic,
+                      ),
+                    ),
+                  ),
+                
+                SizedBox(height: 20),
+                
+                // Choose on map option
+                ListTile(
+                  leading: Icon(Icons.map, color: Colors.green[700]),
+                  title: Text('Choose on map', style: TextStyle(fontWeight: FontWeight.w500)),
+                  trailing: Icon(Icons.chevron_right, color: Colors.grey),
+                  onTap: () {
+                    // Handle choose on map
+                  },
+                  tileColor: Colors.grey[50],
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                ),
+                
+                SizedBox(height: 20),
+                
+                // Recent locations
+                Text(
+                  'Recent Locations',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.grey[800],
+                  ),
+                ),
+                SizedBox(height: 10),
+                
+                ..._recentLocations.map((location) {
+                  return ListTile(
+                    leading: Icon(Icons.history, color: Colors.grey[600]),
+                    title: Text(location),
+                    onTap: () {
+                      setState(() {
+                        _toController.text = location;
+                      });
+                    },
+                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  );
+                }).toList(),
+                
+                SizedBox(height: 20),
+              ],
+            ),
+          ),
+        ),
+        
+        // Book button at bottom
+        ElevatedButton(
+          onPressed: () {
+            setState(() {
+              _isSearchExpanded = false;
+            });
+            // Book ride functionality
+          },
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.green[700],
+            foregroundColor: Colors.white,
+            minimumSize: Size(double.infinity, 56),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
+            ),
+          ),
+          child: Text(
+            'Confirm Route',
+            style: TextStyle(fontSize: 18),
+          ),
+        ),
+      ],
+    );
+  }
+
+  void _addStop() {
+    if (_stopControllers.length < 3) { // Maximum 3 stops
+      setState(() {
+        _stopControllers.add(TextEditingController());
+      });
+    }
+  }
+
+  void _removeStop(int index) {
+    setState(() {
+      _stopControllers[index].dispose();
+      _stopControllers.removeAt(index);
+    });
+  }
+
+  Widget _buildVehicleOption({
+    required IconData icon,
+    required String label,
+    required String value,
+  }) {
+    final isSelected = _selectedVehicle == value;
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _selectedVehicle = value;
+        });
+      },
+      child: AnimatedContainer(
+        duration: Duration(milliseconds: 200),
+        width: 85,
+        padding: EdgeInsets.symmetric(vertical: 12, horizontal: 12),
+        decoration: BoxDecoration(
+          gradient: isSelected
+              ? LinearGradient(
+                  colors: [Colors.green[600]!, Colors.green[800]!],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: isSelected ? null : Colors.grey[50],
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(
+            color: isSelected ? Colors.green[700]! : Colors.grey[300]!,
+            width: 2,
+          ),
+          boxShadow: isSelected
+              ? [
+                  BoxShadow(
+                    color: Colors.green.withOpacity(0.3),
+                    blurRadius: 8,
+                    offset: Offset(0, 4),
+                  ),
+                ]
+              : [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 4,
+                    offset: Offset(0, 2),
+                  ),
+                ],
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(
+              icon,
+              color: isSelected ? Colors.white : Colors.grey[600],
+              size: 28,
+            ),
+            SizedBox(height: 6),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                color: isSelected ? Colors.white : Colors.grey[700],
+                fontSize: 10,
+                fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
+                letterSpacing: 0.2,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _buildDrawer() {
     return Drawer(
       child: ListView(
@@ -219,7 +597,7 @@ class _HomePageState extends State<HomePage> {
         children: [
           UserAccountsDrawerHeader(
             decoration: BoxDecoration(
-              color: Colors.black,
+              color: Color(0xFF00BF6D), // App green
             ),
             currentAccountPicture: CircleAvatar(
               backgroundColor: Colors.white,
@@ -229,32 +607,22 @@ class _HomePageState extends State<HomePage> {
               'User Name',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
-            accountEmail: Text('+1 234 567 8900'),
+            accountEmail: Text('+977 9876543210'),
           ),
           ListTile(
             leading: Icon(Icons.person, color: Colors.black),
             title: Text('Profile'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => const ProfileScreen()),
+              );
             },
           ),
           ListTile(
             leading: Icon(Icons.history, color: Colors.black),
             title: Text('Ride History'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.payment, color: Colors.black),
-            title: Text('Payment Methods'),
-            onTap: () {
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.favorite, color: Colors.black),
-            title: Text('Saved Places'),
             onTap: () {
               Navigator.pop(context);
             },

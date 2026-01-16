@@ -9,6 +9,11 @@ class UserTypeSelection extends StatefulWidget {
 
 class _UserTypeSelectionState extends State<UserTypeSelection> {
   String _selectedType = 'passenger'; // 'passenger' or 'rider'
+  
+  // Color constants
+  static const Color primaryGreen = Color(0xFF00BF6D);
+  static const Color lightGreen = Color(0xFFE8F8F2);
+  static const Color darkGreen = Color(0xFF009D57);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +23,7 @@ class _UserTypeSelectionState extends State<UserTypeSelection> {
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black87),
           onPressed: () => Navigator.pop(context),
         ),
       ),
@@ -34,35 +39,53 @@ class _UserTypeSelectionState extends State<UserTypeSelection> {
                 style: TextStyle(
                   fontSize: 32,
                   fontWeight: FontWeight.bold,
-                  color: Colors.black,
+                  color: Colors.black87,
                 ),
               ),
               const SizedBox(height: 12),
-              const Text(
+              Text(
                 'Select how you want to use Laijau',
                 style: TextStyle(
                   fontSize: 16,
-                  color: Colors.grey,
+                  color: Colors.grey[600],
+                  height: 1.5,
                 ),
               ),
-              const SizedBox(height: 60),
+              const SizedBox(height: 50),
               
               // Passenger Option
               GestureDetector(
                 onTap: () => setState(() => _selectedType = 'passenger'),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
+                    gradient: _selectedType == 'passenger' 
+                        ? const LinearGradient(
+                            colors: [primaryGreen, darkGreen],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
                     color: _selectedType == 'passenger' 
-                        ? Colors.black 
-                        : Colors.grey[100],
+                        ? null 
+                        : lightGreen,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: _selectedType == 'passenger' 
-                          ? Colors.black 
+                          ? primaryGreen 
                           : Colors.grey[300]!,
                       width: 2,
                     ),
+                    boxShadow: _selectedType == 'passenger'
+                        ? [
+                            BoxShadow(
+                              color: primaryGreen.withOpacity(0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Row(
                     children: [
@@ -71,14 +94,14 @@ class _UserTypeSelectionState extends State<UserTypeSelection> {
                         decoration: BoxDecoration(
                           color: _selectedType == 'passenger'
                               ? Colors.white
-                              : Colors.black,
-                          borderRadius: BorderRadius.circular(12),
+                              : primaryGreen,
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
-                          Icons.person,
-                          size: 32,
+                          Icons.person_rounded,
+                          size: 36,
                           color: _selectedType == 'passenger'
-                              ? Colors.black
+                              ? primaryGreen
                               : Colors.white,
                         ),
                       ),
@@ -94,59 +117,86 @@ class _UserTypeSelectionState extends State<UserTypeSelection> {
                                 fontWeight: FontWeight.bold,
                                 color: _selectedType == 'passenger'
                                     ? Colors.white
-                                    : Colors.black,
+                                    : Colors.black87,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             Text(
-                              'Request rides and travel',
+                              'Request rides and travel comfortably',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: _selectedType == 'passenger'
-                                    ? Colors.white70
-                                    : Colors.grey,
+                                    ? Colors.white.withOpacity(0.9)
+                                    : Colors.grey[700],
+                                height: 1.4,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Radio<String>(
-                        value: 'passenger',
-                        groupValue: _selectedType,
-                        onChanged: (value) {
-                          setState(() => _selectedType = value!);
-                        },
-                        activeColor: Colors.white,
-                        fillColor: WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return Colors.white;
-                          }
-                          return Colors.grey;
-                        }),
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: _selectedType == 'passenger'
+                                ? Colors.white
+                                : Colors.grey[400]!,
+                            width: 2,
+                          ),
+                          color: _selectedType == 'passenger'
+                              ? Colors.white
+                              : Colors.transparent,
+                        ),
+                        child: _selectedType == 'passenger'
+                            ? const Icon(
+                                Icons.check,
+                                size: 18,
+                                color: primaryGreen,
+                              )
+                            : null,
                       ),
                     ],
                   ),
                 ),
               ),
               
-              const SizedBox(height: 24),
+              const SizedBox(height: 20),
               
               // Rider/Driver Option
               GestureDetector(
                 onTap: () => setState(() => _selectedType = 'rider'),
-                child: Container(
-                  padding: const EdgeInsets.all(24),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 200),
+                  padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(
+                    gradient: _selectedType == 'rider' 
+                        ? const LinearGradient(
+                            colors: [primaryGreen, darkGreen],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          )
+                        : null,
                     color: _selectedType == 'rider' 
-                        ? Colors.black 
-                        : Colors.grey[100],
+                        ? null 
+                        : lightGreen,
                     borderRadius: BorderRadius.circular(20),
                     border: Border.all(
                       color: _selectedType == 'rider' 
-                          ? Colors.black 
+                          ? primaryGreen 
                           : Colors.grey[300]!,
                       width: 2,
                     ),
+                    boxShadow: _selectedType == 'rider'
+                        ? [
+                            BoxShadow(
+                              color: primaryGreen.withOpacity(0.3),
+                              blurRadius: 12,
+                              offset: const Offset(0, 4),
+                            ),
+                          ]
+                        : null,
                   ),
                   child: Row(
                     children: [
@@ -155,14 +205,14 @@ class _UserTypeSelectionState extends State<UserTypeSelection> {
                         decoration: BoxDecoration(
                           color: _selectedType == 'rider'
                               ? Colors.white
-                              : Colors.black,
-                          borderRadius: BorderRadius.circular(12),
+                              : primaryGreen,
+                          borderRadius: BorderRadius.circular(16),
                         ),
                         child: Icon(
-                          Icons.directions_car,
-                          size: 32,
+                          Icons.directions_car_rounded,
+                          size: 36,
                           color: _selectedType == 'rider'
-                              ? Colors.black
+                              ? primaryGreen
                               : Colors.white,
                         ),
                       ),
@@ -172,41 +222,51 @@ class _UserTypeSelectionState extends State<UserTypeSelection> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Rider',
+                              'Driver',
                               style: TextStyle(
                                 fontSize: 22,
                                 fontWeight: FontWeight.bold,
                                 color: _selectedType == 'rider'
                                     ? Colors.white
-                                    : Colors.black,
+                                    : Colors.black87,
                               ),
                             ),
-                            const SizedBox(height: 4),
+                            const SizedBox(height: 6),
                             Text(
-                              'Offer rides and earn',
+                              'Offer rides and earn money',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: _selectedType == 'rider'
-                                    ? Colors.white70
-                                    : Colors.grey,
+                                    ? Colors.white.withOpacity(0.9)
+                                    : Colors.grey[700],
+                                height: 1.4,
                               ),
                             ),
                           ],
                         ),
                       ),
-                      Radio<String>(
-                        value: 'rider',
-                        groupValue: _selectedType,
-                        onChanged: (value) {
-                          setState(() => _selectedType = value!);
-                        },
-                        activeColor: Colors.white,
-                        fillColor: WidgetStateProperty.resolveWith((states) {
-                          if (states.contains(WidgetState.selected)) {
-                            return Colors.white;
-                          }
-                          return Colors.grey;
-                        }),
+                      Container(
+                        width: 28,
+                        height: 28,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: _selectedType == 'rider'
+                                ? Colors.white
+                                : Colors.grey[400]!,
+                            width: 2,
+                          ),
+                          color: _selectedType == 'rider'
+                              ? Colors.white
+                              : Colors.transparent,
+                        ),
+                        child: _selectedType == 'rider'
+                            ? const Icon(
+                                Icons.check,
+                                size: 18,
+                                color: primaryGreen,
+                              )
+                            : null,
                       ),
                     ],
                   ),
@@ -216,19 +276,36 @@ class _UserTypeSelectionState extends State<UserTypeSelection> {
               const Spacer(),
               
               // Continue Button
-              ElevatedButton(
-                onPressed: _continue,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  minimumSize: const Size(double.infinity, 60),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(16),
-                  ),
+              Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryGreen.withOpacity(0.3),
+                      blurRadius: 12,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
                 ),
-                child: const Text(
-                  'Continue',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                child: ElevatedButton(
+                  onPressed: _continue,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryGreen,
+                    foregroundColor: Colors.white,
+                    minimumSize: const Size(double.infinity, 60),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: const Text(
+                    'Continue',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 0.5,
+                    ),
+                  ),
                 ),
               ),
               const SizedBox(height: 20),

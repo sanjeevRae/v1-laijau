@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'pages/splash_screen.dart';
-import 'pages/login_page.dart';
+import 'pages/welcome_screen.dart';
+// import your new login and otp screens here if needed
+import 'pages/login.dart';
+import 'pages/otp.dart';
 import 'pages/user_type_selection.dart';
 import 'pages/home.dart';
 import 'pages/rider/rider_home.dart';
@@ -49,10 +51,12 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        initialRoute: '/',
+        initialRoute: '/', 
         routes: {
-          '/': (context) => const SplashScreen(),
-          '/login': (context) => const LoginPage(),
+          '/': (context) => const WelcomeScreen(),
+          // Add your new login, OTP, and other screens here as needed
+          '/login': (context) => Login(),
+          '/otp': (context) => const VerificationScreen(),
           '/user-type-selection': (context) => const UserTypeSelection(),
           '/home': (context) => const HomePage(),
           '/rider': (context) => const RiderHome(),

@@ -10,6 +10,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_svg: ^2.0.10
   
   # UI & Icons
   cupertino_icons: ^1.0.8
@@ -26,8 +27,7 @@ dependencies:
   http: ^1.2.0
   
   # Video Call
-  jitsi_meet_flutter_sdk:
-    path: .local_plugins/jitsi_meet_flutter_sdk
+  jitsi_meet_flutter_sdk: ^11.6.0
   
   # State Management
   provider: ^6.1.1
@@ -55,18 +55,8 @@ dev_dependencies:
 
 # Dependency overrides to fix Android v1 embedding issue with Flutter 3.38+
 dependency_overrides:
-  flutter_plugin_android_lifecycle:
-    path: .local_plugins/flutter_plugin_android_lifecycle-2.0.33
-  geolocator_android:
-    path: .local_plugins/geolocator_android-4.6.2
-  image_picker_android:
-    path: .local_plugins/image_picker_android-0.8.13+10
-  permission_handler_android:
-    path: .local_plugins/permission_handler_android-12.1.0
-  shared_preferences_android:
-    path: .local_plugins/shared_preferences_android-2.4.18
-  url_launcher_android:
-    path: .local_plugins/url_launcher_android-6.3.28
+  # All Android plugin overrides removed; using pub.dev versions
+  # url_launcher_android override removed; using pub.dev version via url_launcher
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
