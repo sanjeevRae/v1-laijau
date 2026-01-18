@@ -25,11 +25,19 @@ class LocationProvider extends ChangeNotifier {
   bool get isTracking => _isTracking;
 
   Future<bool> initialize() async {
-    final hasPermission = await _locationService.checkPermissions();
-    if (hasPermission) {
-      await getCurrentLocation();
+    try {
+      final hasPermission = await _locationService.checkPermissions();
+      if (hasPermission) {
+        // Don't await to avoid blocking
+        getCurrentLocation().catchError((e) {
+          developer.log('Failed to get location', error: e, name: 'LocationProvider');
+        });
+      }
+      return hasPermission;
+    } catch (e) {
+      developer.log('Failed to initialize location', error: e, name: 'LocationProvider');
+      return false;
     }
-    return hasPermission;
   }
 
   Future<void> getCurrentLocation() async {

@@ -4,6 +4,7 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:laijau/pages/profile_screen.dart';
+import 'fare_estimation_screen.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -16,6 +17,9 @@ class _HomePageState extends State<HomePage> {
   final MapController _mapController = MapController();
   LatLng? _currentPosition;
   bool _isLoading = true;
+  bool _isSelectingLocationOnMap = false;
+  LatLng? _selectedMapLocation;
+  String _selectingFor = ''; // 'from' or 'to'
 
   @override
   void initState() {
@@ -49,27 +53,36 @@ class _HomePageState extends State<HomePage> {
         desiredAccuracy: LocationAccuracy.high,
       );
 
+      if (!mounted) return;
+
       setState(() {
         _currentPosition = LatLng(position.latitude, position.longitude);
         _isLoading = false;
       });
 
-      _mapController.move(_currentPosition!, 15.0);
+      if (_currentPosition != null) {
+        _mapController.move(_currentPosition!, 15.0);
+      }
     } catch (e) {
-      setState(() => _isLoading = false);
       developer.log('Error getting location', error: e, name: 'HomePage');
+      if (!mounted) return;
+      setState(() {
+        _isLoading = false;
+        // Set default position to Kathmandu if location fails
+        _currentPosition = LatLng(27.7172, 85.3240);
+      });
     }
   }
 
   // Controllers for the 'from' and 'to' fields
   final TextEditingController _fromController = TextEditingController();
   final TextEditingController _toController = TextEditingController();
-  
+
   // Selected vehicle type
   String _selectedVehicle = 'car'; // default to car
-  
+
   bool _isSearchExpanded = false;
-  
+
   List<TextEditingController> _stopControllers = [];
   List<String> _recentLocations = [
     'Kathmandu Durbar Square',
@@ -88,17 +101,24 @@ class _HomePageState extends State<HomePage> {
           FlutterMap(
             mapController: _mapController,
             options: MapOptions(
-              initialCenter: _currentPosition ?? LatLng(0, 0),
+              initialCenter: _currentPosition ?? LatLng(27.7172, 85.3240),
               initialZoom: 15.0,
               minZoom: 5.0,
               maxZoom: 18.0,
+              onTap: _isSelectingLocationOnMap
+                  ? (tapPosition, point) {
+                      setState(() {
+                        _selectedMapLocation = point;
+                      });
+                    }
+                  : null,
             ),
             children: [
               TileLayer(
                 urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
                 userAgentPackageName: 'com.laijau.app',
               ),
-              if (_currentPosition != null)
+              if (_currentPosition != null && !_isSelectingLocationOnMap)
                 MarkerLayer(
                   markers: [
                     Marker(
@@ -109,6 +129,33 @@ class _HomePageState extends State<HomePage> {
                         Icons.my_location,
                         color: Colors.blue,
                         size: 40,
+                      ),
+                    ),
+                  ],
+                ),
+              // Show selected location marker when picking location
+              if (_isSelectingLocationOnMap && _selectedMapLocation != null)
+                MarkerLayer(
+                  markers: [
+                    Marker(
+                      point: _selectedMapLocation!,
+                      width: 50,
+                      height: 50,
+                      child: Column(
+                        children: [
+                          Icon(
+                            Icons.location_pin,
+                            color: Colors.red,
+                            size: 50,
+                            shadows: [
+                              Shadow(
+                                color: Colors.black.withOpacity(0.3),
+                                offset: Offset(2, 2),
+                                blurRadius: 4,
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
@@ -142,39 +189,41 @@ class _HomePageState extends State<HomePage> {
           ),
 
           // Navigation button at bottom right
-          Positioned(
-            bottom: 360, // Above the search bar with more clearance
-            right: 16,
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                shape: BoxShape.circle,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.2),
-                    blurRadius: 16,
-                    offset: Offset(0, 6),
-                  ),
-                ],
-              ),
-              child: Material(
-                color: Colors.transparent,
-                child: InkWell(
-                  borderRadius: BorderRadius.circular(50),
-                  onTap: () {
-                    // Center map on current location
-                    if (_currentPosition != null) {
-                      _mapController.move(_currentPosition!, 15.0);
-                    }
-                  },
-                  child: Padding(
-                    padding: EdgeInsets.all(14),
-                    child: Icon(Icons.navigation, color: Colors.green[700], size: 28),
+          if (!_isSelectingLocationOnMap)
+            Positioned(
+              bottom: 360, // Above the search bar with more clearance
+              right: 16,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 16,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(50),
+                    onTap: () {
+                      _centerOnCurrentLocation();
+                    },
+                    child: Padding(
+                      padding: EdgeInsets.all(14),
+                      child: Icon(
+                        Icons.my_location,
+                        color: Colors.green[700],
+                        size: 28,
+                      ),
+                    ),
                   ),
                 ),
               ),
             ),
-          ),
 
           // Bottom Uber-style Search Bar (without nav button)
           Positioned(
@@ -183,7 +232,9 @@ class _HomePageState extends State<HomePage> {
             right: 0,
             child: AnimatedContainer(
               duration: Duration(milliseconds: 300),
-              height: _isSearchExpanded ? MediaQuery.of(context).size.height * 0.75 : null,
+              height: _isSearchExpanded
+                  ? MediaQuery.of(context).size.height * 0.75
+                  : null,
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -196,17 +247,157 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               padding: EdgeInsets.fromLTRB(20, 20, 20, 32),
-              child: _isSearchExpanded ? _buildExpandedSearch() : _buildCompactSearch(),
+              child: _isSearchExpanded
+                  ? _buildExpandedSearch()
+                  : _buildCompactSearch(),
             ),
           ),
+
+          // Map Location Picker Overlay
+          if (_isSelectingLocationOnMap)
+            Positioned(
+              top: 0,
+              left: 0,
+              right: 0,
+              child: Container(
+                padding: EdgeInsets.fromLTRB(16, 50, 16, 20),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.black.withOpacity(0.7), Colors.transparent],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(
+                            Icons.arrow_back,
+                            color: Colors.white,
+                            size: 28,
+                          ),
+                          onPressed: _cancelMapSelection,
+                        ),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Select Location',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Text(
+                                'Tap anywhere on the map to pin location',
+                                style: TextStyle(
+                                  color: Colors.white.withOpacity(0.9),
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+          // Recenter button during location selection
+          if (_isSelectingLocationOnMap)
+            Positioned(
+              bottom: 120,
+              right: 16,
+              child: Container(
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 16,
+                      offset: Offset(0, 6),
+                    ),
+                  ],
+                ),
+                child: Material(
+                  color: Colors.transparent,
+                  child: InkWell(
+                    borderRadius: BorderRadius.circular(50),
+                    onTap: _centerOnCurrentLocation,
+                    child: Padding(
+                      padding: EdgeInsets.all(14),
+                      child: Icon(
+                        Icons.my_location,
+                        color: Colors.green[700],
+                        size: 28,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
+
+          // Done button for map selection
+          if (_isSelectingLocationOnMap && _selectedMapLocation != null)
+            Positioned(
+              bottom: 40,
+              left: 16,
+              right: 16,
+              child: Container(
+                decoration: BoxDecoration(
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.2),
+                      blurRadius: 20,
+                      offset: Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: ElevatedButton(
+                  onPressed: _confirmMapSelection,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green[700],
+                    foregroundColor: Colors.white,
+                    minimumSize: Size(double.infinity, 60),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    elevation: 0,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.check_circle, size: 28),
+                      SizedBox(width: 12),
+                      Text(
+                        'Confirm Location',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 0.5,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
 
           // Loading Indicator
           if (_isLoading)
             Container(
               color: Colors.white,
-              child: Center(
-                child: CircularProgressIndicator(),
-              ),
+              child: Center(child: CircularProgressIndicator()),
             ),
         ],
       ),
@@ -305,7 +496,7 @@ class _HomePageState extends State<HomePage> {
         SizedBox(height: 20),
         ElevatedButton(
           onPressed: () {
-            // Book ride functionality
+            _bookRide();
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green[700],
@@ -315,10 +506,7 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: Text(
-            'Book a Ride',
-            style: TextStyle(fontSize: 18),
-          ),
+          child: Text('Book a Ride', style: TextStyle(fontSize: 18)),
         ),
       ],
     );
@@ -363,7 +551,10 @@ class _HomePageState extends State<HomePage> {
                       prefixIcon: Icon(Icons.emoji_people, color: Colors.green),
                       hintText: 'What is your pickup location?',
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 8,
+                      ),
                     ),
                   ),
                 ),
@@ -380,7 +571,10 @@ class _HomePageState extends State<HomePage> {
                       prefixIcon: Icon(Icons.location_on, color: Colors.red),
                       hintText: 'Where are you going?',
                       border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                      contentPadding: EdgeInsets.symmetric(
+                        vertical: 14,
+                        horizontal: 8,
+                      ),
                       suffixIcon: IconButton(
                         icon: Icon(Icons.add, color: Colors.green[700]),
                         onPressed: _addStop,
@@ -388,7 +582,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   ),
                 ),
-                
+
                 // Multiple stops
                 ..._stopControllers.asMap().entries.map((entry) {
                   int index = entry.key;
@@ -403,10 +597,16 @@ class _HomePageState extends State<HomePage> {
                       child: TextField(
                         controller: controller,
                         decoration: InputDecoration(
-                          prefixIcon: Icon(Icons.add_location, color: Colors.orange),
+                          prefixIcon: Icon(
+                            Icons.add_location,
+                            color: Colors.orange,
+                          ),
                           hintText: 'Add stop ${index + 1}',
                           border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 14, horizontal: 8),
+                          contentPadding: EdgeInsets.symmetric(
+                            vertical: 14,
+                            horizontal: 8,
+                          ),
                           suffixIcon: IconButton(
                             icon: Icon(Icons.close, color: Colors.red),
                             onPressed: () => _removeStop(index),
@@ -416,7 +616,7 @@ class _HomePageState extends State<HomePage> {
                     ),
                   );
                 }).toList(),
-                
+
                 // Helper message
                 if (_stopControllers.isNotEmpty)
                   Padding(
@@ -430,25 +630,32 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   ),
-                
+
                 SizedBox(height: 20),
-                
+
                 // Choose on map option
                 ListTile(
                   leading: Icon(Icons.map, color: Colors.green[700]),
-                  title: Text('Choose on map', style: TextStyle(fontWeight: FontWeight.w500)),
+                  title: Text(
+                    'Choose on map',
+                    style: TextStyle(fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text(
+                    'Tap to select location from map',
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                  ),
                   trailing: Icon(Icons.chevron_right, color: Colors.grey),
                   onTap: () {
-                    // Handle choose on map
+                    _openMapLocationPicker();
                   },
                   tileColor: Colors.grey[50],
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(10),
                   ),
                 ),
-                
+
                 SizedBox(height: 20),
-                
+
                 // Recent locations
                 Text(
                   'Recent Locations',
@@ -459,7 +666,7 @@ class _HomePageState extends State<HomePage> {
                   ),
                 ),
                 SizedBox(height: 10),
-                
+
                 ..._recentLocations.map((location) {
                   return ListTile(
                     leading: Icon(Icons.history, color: Colors.grey[600]),
@@ -469,23 +676,23 @@ class _HomePageState extends State<HomePage> {
                         _toController.text = location;
                       });
                     },
-                    contentPadding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                    contentPadding: EdgeInsets.symmetric(
+                      horizontal: 8,
+                      vertical: 4,
+                    ),
                   );
                 }).toList(),
-                
+
                 SizedBox(height: 20),
               ],
             ),
           ),
         ),
-        
+
         // Book button at bottom
         ElevatedButton(
           onPressed: () {
-            setState(() {
-              _isSearchExpanded = false;
-            });
-            // Book ride functionality
+            _bookRide();
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.green[700],
@@ -495,17 +702,15 @@ class _HomePageState extends State<HomePage> {
               borderRadius: BorderRadius.circular(12),
             ),
           ),
-          child: Text(
-            'Confirm Route',
-            style: TextStyle(fontSize: 18),
-          ),
+          child: Text('Confirm Route', style: TextStyle(fontSize: 18)),
         ),
       ],
     );
   }
 
   void _addStop() {
-    if (_stopControllers.length < 3) { // Maximum 3 stops
+    if (_stopControllers.length < 3) {
+      // Maximum 3 stops
       setState(() {
         _stopControllers.add(TextEditingController());
       });
@@ -767,12 +972,18 @@ class _HomePageState extends State<HomePage> {
           children: [
             Text(
               'LAIJAU',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, letterSpacing: 2),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                letterSpacing: 2,
+              ),
             ),
             SizedBox(height: 8),
             Text('Version 1.0.0'),
             SizedBox(height: 16),
-            Text('A modern ride-sharing platform connecting passengers and riders.'),
+            Text(
+              'A modern ride-sharing platform connecting passengers and riders.',
+            ),
             SizedBox(height: 16),
             Text('© 2026 Laijau. All rights reserved.'),
           ],
@@ -801,12 +1012,217 @@ class _HomePageState extends State<HomePage> {
           TextButton(
             onPressed: () {
               Navigator.pop(context);
-              Navigator.pushNamedAndRemoveUntil(context, '/login', (route) => false);
+              Navigator.pushNamedAndRemoveUntil(
+                context,
+                '/login',
+                (route) => false,
+              );
             },
             child: Text('Logout', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),
     );
+  }
+
+  // Map location picker methods
+  void _openMapLocationPicker() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Choose Location For'),
+        content: Text(
+          'Select whether this location is for pickup or destination',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _startMapSelection('from');
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.emoji_people, color: Colors.green, size: 20),
+                SizedBox(width: 8),
+                Text('Pickup', style: TextStyle(color: Colors.green[700])),
+              ],
+            ),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              _startMapSelection('to');
+            },
+            child: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Icon(Icons.location_on, color: Colors.red, size: 20),
+                SizedBox(width: 8),
+                Text('Destination', style: TextStyle(color: Colors.red)),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _startMapSelection(String selectingFor) {
+    setState(() {
+      _isSelectingLocationOnMap = true;
+      _selectingFor = selectingFor;
+      _selectedMapLocation = _currentPosition; // Start with current position
+      _isSearchExpanded = false;
+    });
+
+    // Move map to current position
+    if (_currentPosition != null) {
+      _mapController.move(_currentPosition!, 15.0);
+    }
+  }
+
+  void _cancelMapSelection() {
+    setState(() {
+      _isSelectingLocationOnMap = false;
+      _selectedMapLocation = null;
+      _selectingFor = '';
+    });
+  }
+
+  void _confirmMapSelection() {
+    if (_selectedMapLocation == null) return;
+
+    // Format coordinates as address placeholder
+    String locationText =
+        '${_selectedMapLocation!.latitude.toStringAsFixed(4)}, ${_selectedMapLocation!.longitude.toStringAsFixed(4)}';
+
+    setState(() {
+      if (_selectingFor == 'from') {
+        _fromController.text = locationText;
+      } else if (_selectingFor == 'to') {
+        _toController.text = locationText;
+      }
+      _isSelectingLocationOnMap = false;
+      _selectedMapLocation = null;
+      _selectingFor = '';
+    });
+
+    // Show confirmation
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            Icon(Icons.check_circle, color: Colors.white),
+            SizedBox(width: 12),
+            Expanded(
+              child: Text(
+                'Location selected successfully!',
+                style: TextStyle(fontSize: 16),
+              ),
+            ),
+          ],
+        ),
+        backgroundColor: Colors.green[700],
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
+  void _centerOnCurrentLocation() async {
+    if (_currentPosition != null) {
+      _mapController.move(_currentPosition!, 15.0);
+
+      // Provide haptic feedback if available
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.my_location, color: Colors.white, size: 20),
+              SizedBox(width: 12),
+              Text('Centered on your location'),
+            ],
+          ),
+          backgroundColor: Colors.blue[700],
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          duration: Duration(seconds: 1),
+        ),
+      );
+    } else {
+      // Try to get location if not available
+      if (!mounted) return;
+      setState(() => _isLoading = true);
+      await _getCurrentLocation();
+      if (!mounted) return;
+      if (_currentPosition != null) {
+        _mapController.move(_currentPosition!, 15.0);
+      }
+    }
+  }
+
+  void _bookRide() {
+    // Validate inputs
+    if (_fromController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 12),
+              Text('Please enter pickup location'),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+      return;
+    }
+
+    if (_toController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              Icon(Icons.error, color: Colors.white),
+              SizedBox(width: 12),
+              Text('Please enter destination'),
+            ],
+          ),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
+      return;
+    }
+
+    // Navigate to fare estimation screen
+    if (!mounted) return;
+    try {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FareEstimationScreen(
+            fromLocation: _fromController.text,
+            toLocation: _toController.text,
+            fromCoords: _currentPosition ?? LatLng(27.7172, 85.3240),
+            toCoords: null, // Could be set if location was selected from map
+          ),
+        ),
+      );
+    } catch (e) {
+      developer.log('Navigation error', error: e, name: 'HomePage');
+    }
   }
 }

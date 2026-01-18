@@ -1,5 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:developer' as developer;
+import '../config/app_config.dart';
 
 class ApiService {
   static final ApiService _instance = ApiService._internal();
@@ -8,28 +10,34 @@ class ApiService {
   late Dio _dio;
   String? _token;
   
-  static const String baseUrl = 'http://localhost:8080/api';
-  
   ApiService._internal() {
-    _dio = Dio(BaseOptions(
-      baseUrl: baseUrl,
-      connectTimeout: const Duration(seconds: 30),
-      receiveTimeout: const Duration(seconds: 30),
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    ));
+    try {
+      _dio = Dio(BaseOptions(
+        baseUrl: AppConfig.apiUrl,
+        connectTimeout: AppConfig.connectTimeout,
+        receiveTimeout: AppConfig.receiveTimeout,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      ));
     
-    _dio.interceptors.add(InterceptorsWrapper(
-      onRequest: (options, handler) async {
-        if (_token != null) {
-          options.headers['Authorization'] = 'Bearer $_token';
-        }
-        return handler.next(options);
-      },
-    ));
-    
-    _loadToken();
+      _dio.interceptors.add(InterceptorsWrapper(
+        onRequest: (options, handler) async {
+          if (_token != null) {
+            options.headers['Authorization'] = 'Bearer $_token';
+          }
+          return handler.next(options);
+        },
+        onError: (error, handler) async {
+          developer.log('API Error: ${error.message}', name: 'ApiService');
+          return handler.next(error);
+        },
+      ));
+      
+      _loadToken();
+    } catch (e) {
+      developer.log('Failed to initialize ApiService', error: e, name: 'ApiService');
+    }
   }
   
   Future<void> _loadToken() async {
@@ -51,6 +59,9 @@ class ApiService {
 
   // Auth APIs
   Future<Map<String, dynamic>> sendOTP(String phone) async {
+    if (!AppConfig.enableApiCalls) {
+      throw Exception('Backend server is not configured. Please update AppConfig.');
+    }
     try {
       final response = await _dio.post('/auth/send-otp', data: {'phone': phone});
       return response.data;
@@ -60,6 +71,9 @@ class ApiService {
   }
 
   Future<Map<String, dynamic>> verifyOTP(String phone, String otp) async {
+    if (!AppConfig.enableApiCalls) {
+      throw Exception('Backend server is not configured. Please update AppConfig.');
+    }
     try {
       final response = await _dio.post('/auth/verify-otp', data: {
         'phone': phone,
@@ -73,6 +87,9 @@ class ApiService {
 
   // Ride APIs
   Future<Map<String, dynamic>> requestRide(Map<String, dynamic> rideData) async {
+    if (!AppConfig.enableApiCalls) {
+      throw Exception('Backend server is not configured. Please update AppConfig.');
+    }
     try {
       final response = await _dio.post('/rides/request', data: rideData);
       return response.data;

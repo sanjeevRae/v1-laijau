@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'dart:async';
 import 'package:provider/provider.dart';
 import 'pages/welcome_screen.dart';
 // import your new login and otp screens here if needed
@@ -12,10 +14,36 @@ import 'pages/admin/admin_dashboard.dart';
 import 'providers/auth_provider.dart';
 import 'providers/location_provider.dart';
 import 'providers/ride_provider.dart';
+import 'dart:developer' as developer;
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  runApp(const MyApp());
+
+  // Global error handlers to prevent app crashes
+  FlutterError.onError = (FlutterErrorDetails details) {
+    FlutterError.presentError(details);
+    developer.log(
+      'Flutter Error',
+      error: details.exception,
+      stackTrace: details.stack,
+      name: 'GlobalErrorHandler',
+    );
+  };
+
+  // Catch errors in async operations
+  runZonedGuarded(
+    () {
+      runApp(const MyApp());
+    },
+    (error, stack) {
+      developer.log(
+        'Uncaught Error',
+        error: error,
+        stackTrace: stack,
+        name: 'GlobalErrorHandler',
+      );
+    },
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -25,9 +53,38 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()..initialize()),
-        ChangeNotifierProvider(create: (_) => LocationProvider()..initialize()),
-        ChangeNotifierProvider(create: (_) => RideProvider()..initialize()),
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = AuthProvider();
+            // Initialize asynchronously without blocking
+            provider.initialize().catchError((e) {
+              // Silently handle errors during initialization
+            });
+            return provider;
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = LocationProvider();
+            // Initialize asynchronously without blocking
+            provider.initialize().catchError((e) {
+              // Silently handle errors during initialization
+              return false;
+            });
+            return provider;
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (_) {
+            final provider = RideProvider();
+            try {
+              provider.initialize();
+            } catch (e) {
+              // Silently handle errors during initialization
+            }
+            return provider;
+          },
+        ),
       ],
       child: MaterialApp(
         title: 'Laijau - Ride Sharing',
@@ -51,7 +108,50 @@ class MyApp extends StatelessWidget {
             ),
           ),
         ),
-        initialRoute: '/', 
+        initialRoute: '/',
+        onUnknownRoute: (settings) {
+          // Handle unknown routes gracefully
+          return MaterialPageRoute(builder: (context) => const WelcomeScreen());
+        },
+        builder: (context, widget) {
+          // Global error handling for widget tree
+          ErrorWidget.builder = (FlutterErrorDetails errorDetails) {
+            return Scaffold(
+              backgroundColor: Colors.white,
+              body: Center(
+                child: Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.error_outline,
+                        size: 48,
+                        color: Colors.red[300],
+                      ),
+                      SizedBox(height: 16),
+                      Text(
+                        'Oops! Something went wrong',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      SizedBox(height: 8),
+                      Text(
+                        'Please restart the app',
+                        style: TextStyle(color: Colors.grey[600]),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          };
+          return widget!;
+        },
         routes: {
           '/': (context) => const WelcomeScreen(),
           // Add your new login, OTP, and other screens here as needed

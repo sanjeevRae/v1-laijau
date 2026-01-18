@@ -24,7 +24,11 @@ class RideProvider extends ChangeNotifier {
   Map<String, dynamic>? get fareEstimate => _fareEstimate;
   
   void initialize() {
-    _setupSocketListeners();
+    try {
+      _setupSocketListeners();
+    } catch (e) {
+      developer.log('Failed to initialize ride provider', error: e, name: 'RideProvider');
+    }
   }
   
   void _setupSocketListeners() {

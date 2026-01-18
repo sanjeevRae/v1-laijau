@@ -23,17 +23,25 @@ class AuthProvider extends ChangeNotifier {
   bool get isAdmin => _userType == 'admin';
 
   Future<void> initialize() async {
-    final prefs = await SharedPreferences.getInstance();
-    _token = prefs.getString('auth_token');
-    final userJson = prefs.getString('user_data');
-    _userType = prefs.getString('user_type') ?? 'rider';
-    
-    if (_token != null && userJson != null) {
-      _isAuthenticated = true;
-      _socketService.connect(_token!);
-      await loadUserProfile();
+    try {
+      final prefs = await SharedPreferences.getInstance();
+      _token = prefs.getString('auth_token');
+      final userJson = prefs.getString('user_data');
+      _userType = prefs.getString('user_type') ?? 'rider';
+      
+      if (_token != null && userJson != null) {
+        _isAuthenticated = true;
+        _socketService.connect(_token!);
+        // Don't await loadUserProfile to avoid blocking initialization
+        loadUserProfile().catchError((e) {
+          developer.log('Failed to load user profile', error: e, name: 'AuthProvider');
+        });
+      }
+      notifyListeners();
+    } catch (e) {
+      developer.log('Failed to initialize auth', error: e, name: 'AuthProvider');
+      notifyListeners();
     }
-    notifyListeners();
   }
 
   Future<bool> sendOTP(String phone) async {

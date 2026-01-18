@@ -1,5 +1,6 @@
 import 'dart:developer' as developer;
 import 'package:socket_io_client/socket_io_client.dart' as io;
+import '../config/app_config.dart';
 
 class SocketService {
   static final SocketService _instance = SocketService._internal();
@@ -8,40 +9,47 @@ class SocketService {
 
   io.Socket? _socket;
   bool _isConnected = false;
-  
-  static const String socketUrl = 'http://localhost:8080';
 
   bool get isConnected => _isConnected;
 
   void connect(String token) {
-    _socket = io.io(
-      socketUrl,
-      io.OptionBuilder()
-          .setTransports(['websocket'])
-          .setAuth({'token': token})
-          .enableAutoConnect()
-          .enableReconnection()
-          .setReconnectionDelay(1000)
-          .build(),
-    );
-
-    _socket!.onConnect((_) {
-      developer.log('Socket connected', name: 'SocketService');
-      _isConnected = true;
-    });
-
-    _socket!.onDisconnect((_) {
-      developer.log('Socket disconnected', name: 'SocketService');
-      _isConnected = false;
-    });
-
-    _socket!.onError((error) {
-      developer.log('Socket error', error: error, name: 'SocketService');
-    });
+    if (!AppConfig.enableSocketConnection) {
+      developer.log('Socket connection disabled in config', name: 'SocketService');
+      return;
+    }
     
-    _socket!.onConnectError((error) {
-      developer.log('Socket connect error', error: error, name: 'SocketService');
-    });
+    try {
+      _socket = io.io(
+        AppConfig.socketUrl,
+        io.OptionBuilder()
+            .setTransports(['websocket'])
+            .setAuth({'token': token})
+            .enableAutoConnect()
+            .enableReconnection()
+            .setReconnectionDelay(1000)
+            .build(),
+      );
+
+      _socket!.onConnect((_) {
+        developer.log('Socket connected', name: 'SocketService');
+        _isConnected = true;
+      });
+
+      _socket!.onDisconnect((_) {
+        developer.log('Socket disconnected', name: 'SocketService');
+        _isConnected = false;
+      });
+
+      _socket!.onError((error) {
+        developer.log('Socket error', error: error, name: 'SocketService');
+      });
+      
+      _socket!.onConnectError((error) {
+        developer.log('Socket connect error', error: error, name: 'SocketService');
+      });
+    } catch (e) {
+      developer.log('Failed to initialize socket', error: e, name: 'SocketService');
+    }
   }
 
   void disconnect() {
