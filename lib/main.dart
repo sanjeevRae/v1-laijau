@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'dart:async';
 import 'package:provider/provider.dart';
 import 'pages/welcome_screen.dart';
+import 'pages/splash_screen.dart';
 // import your new login and otp screens here if needed
 import 'pages/login.dart';
 import 'pages/otp.dart';
@@ -153,7 +154,8 @@ class MyApp extends StatelessWidget {
           return widget!;
         },
         routes: {
-          '/': (context) => const WelcomeScreen(),
+          '/': (context) => const SplashScreen(),
+          '/welcome': (context) => const WelcomeScreen(),
           // Add your new login, OTP, and other screens here as needed
           '/login': (context) => Login(),
           '/otp': (context) => const VerificationScreen(),
