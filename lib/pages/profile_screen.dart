@@ -8,11 +8,11 @@ class ProfileScreen extends StatefulWidget {
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  String name = "Annette Black";
-  String userId = "@annette.me";
-  String location = "New York, NYC";
-  String phone = "(239) 555-0108";
-  String email = "demo@mail.com";
+  String name = "Mina Gurung";
+  String userId = "@minarai";
+  String location = "Kathmandu, Nepal";
+  String phone = "+977-9812345678";
+  String email = "mina@gmail.com";
   String imageUrl = "https://i.postimg.cc/cCsYDjvj/user-2.png";
 
   @override
