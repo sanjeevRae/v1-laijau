@@ -86,7 +86,6 @@ class _HomePageState extends State<HomePage> {
   List<TextEditingController> _stopControllers = [];
   List<String> _recentLocations = [
     'Kathmandu Durbar Square',
-    'Thamel, Kathmandu',
     'Tribhuvan International Airport',
     'Patan Durbar Square',
   ];
@@ -1123,8 +1122,13 @@ class _HomePageState extends State<HomePage> {
             ),
           ],
         ),
-        backgroundColor: Colors.green[700],
+        backgroundColor: Colors.green[400],
         behavior: SnackBarBehavior.floating,
+        margin: EdgeInsets.only(
+          top: 80,
+          left: 16,
+          right: 16,
+        ),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
         duration: Duration(seconds: 2),
       ),
