@@ -136,7 +136,7 @@ class _DriverHelpState extends State<DriverHelp> {
             ),
             child: Column(
               children: [
-                Icon(Icons.emergency, color: Colors.white, size: 48),
+                Icon(Icons.emergency, color: Colors.white, size: 32),
                 SizedBox(height: 12),
                 Text(
                   '24/7 Emergency Support',
