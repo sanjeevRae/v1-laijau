@@ -215,13 +215,25 @@ class _DriverHelpState extends State<DriverHelp> {
                   'Live Chat',
                   Colors.purple,
                   () {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text('Live chat feature coming soon'),
+                    ScaffoldMessenger.of(context).showMaterialBanner(
+                      MaterialBanner(
+                        content: Text(
+                          'Live chat feature coming soon',
+                          style: TextStyle(color: Colors.white),
+                        ),
                         backgroundColor: Colors.purple[700],
-                        behavior: SnackBarBehavior.floating,
+                        leading: Icon(Icons.info, color: Colors.white),
+                        actions: [
+                          TextButton(
+                            onPressed: () => ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+                            child: Text('OK', style: TextStyle(color: Colors.white)),
+                          ),
+                        ],
                       ),
                     );
+                    Future.delayed(Duration(seconds: 3), () {
+                      ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                    });
                   },
                 ),
               ),
@@ -428,72 +440,72 @@ class _DriverHelpState extends State<DriverHelp> {
   }
 
   void _showTopicDetail(HelpTopic topic) {
-    showModalBottomSheet(
+    showDialog(
       context: context,
-      isScrollControlled: true,
-      backgroundColor: Colors.transparent,
       builder: (context) {
-        return Container(
-          height: MediaQuery.of(context).size.height * 0.7,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+        return Dialog(
+          alignment: Alignment.topCenter,
+          insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 40),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(24),
           ),
-          child: Column(
-            children: [
-              Container(
-                width: 40,
-                height: 4,
-                margin: EdgeInsets.symmetric(vertical: 12),
-                decoration: BoxDecoration(
-                  color: Colors.grey[300],
-                  borderRadius: BorderRadius.circular(2),
-                ),
-              ),
-              Padding(
-                padding: EdgeInsets.all(20),
-                child: Row(
-                  children: [
-                    Container(
-                      padding: EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        color: topic.color.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
+          child: Container(
+            height: MediaQuery.of(context).size.height * 0.7,
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(24),
+            ),
+            child: Column(
+              children: [
+                Padding(
+                  padding: EdgeInsets.all(20),
+                  child: Row(
+                    children: [
+                      Container(
+                        padding: EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: topic.color.withOpacity(0.1),
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: Icon(topic.icon, color: topic.color, size: 32),
                       ),
-                      child: Icon(topic.icon, color: topic.color, size: 32),
-                    ),
-                    SizedBox(width: 16),
-                    Expanded(
-                      child: Text(
-                        topic.title,
-                        style: TextStyle(
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.black87,
+                      SizedBox(width: 16),
+                      Expanded(
+                        child: Text(
+                          topic.title,
+                          style: TextStyle(
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black87,
+                          ),
                         ),
                       ),
-                    ),
-                  ],
+                      IconButton(
+                        icon: Icon(Icons.close, color: Colors.grey[600]),
+                        onPressed: () => Navigator.pop(context),
+                      ),
+                    ],
+                  ),
                 ),
-              ),
-              Divider(height: 1),
-              Expanded(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(20),
-                  child: Text(
-                    topic.content +
-                        '\n\nThis is a detailed help article about ${topic.title.toLowerCase()}. '
-                            'It would contain comprehensive information, step-by-step guides, screenshots, '
-                            'and helpful tips to assist drivers in understanding and using this feature effectively.',
-                    style: TextStyle(
-                      color: Colors.black87,
-                      fontSize: 15,
-                      height: 1.6,
+                Divider(height: 1),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: EdgeInsets.all(20),
+                    child: Text(
+                      topic.content +
+                          '\n\nThis is a detailed help article about ${topic.title.toLowerCase()}. '
+                              'It would contain comprehensive information, step-by-step guides, screenshots, '
+                              'and helpful tips to assist drivers in understanding and using this feature effectively.',
+                      style: TextStyle(
+                        color: Colors.black87,
+                        fontSize: 15,
+                        height: 1.6,
+                      ),
                     ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         );
       },
@@ -503,48 +515,91 @@ class _DriverHelpState extends State<DriverHelp> {
   void _showReportDialog() {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.bug_report, color: Colors.orange[700]),
-            SizedBox(width: 12),
-            Text('Report a Bug'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Help us improve by reporting any issues you encounter.'),
-            SizedBox(height: 16),
-            TextField(
-              decoration: InputDecoration(
-                hintText: 'Describe the issue...',
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+      builder: (context) => Dialog(
+        alignment: Alignment.topCenter,
+        insetPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 60),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Row(
+                children: [
+                  Icon(Icons.bug_report, color: Colors.orange[700], size: 28),
+                  SizedBox(width: 12),
+                  Text(
+                    'Report a Bug',
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
-              maxLines: 4,
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Thank you for your feedback!'),
-                  backgroundColor: Colors.green[700],
-                  behavior: SnackBarBehavior.floating,
+              SizedBox(height: 16),
+              Text(
+                'Help us improve by reporting any issues you encounter.',
+                style: TextStyle(color: Colors.grey[700]),
+              ),
+              SizedBox(height: 16),
+              TextField(
+                decoration: InputDecoration(
+                  hintText: 'Describe the issue...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  filled: true,
+                  fillColor: Colors.grey[50],
                 ),
-              );
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange[700]),
-            child: Text('Submit'),
+                maxLines: 4,
+              ),
+              SizedBox(height: 24),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.end,
+                children: [
+                  TextButton(
+                    onPressed: () => Navigator.pop(context),
+                    child: Text('Cancel', style: TextStyle(color: Colors.grey[600])),
+                  ),
+                  SizedBox(width: 12),
+                  ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context);
+                      ScaffoldMessenger.of(context).showMaterialBanner(
+                        MaterialBanner(
+                          content: Text(
+                            'Thank you for your feedback!',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                          backgroundColor: Colors.green[700],
+                          leading: Icon(Icons.check_circle, color: Colors.white),
+                          actions: [
+                            TextButton(
+                              onPressed: () => ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+                              child: Text('OK', style: TextStyle(color: Colors.white)),
+                            ),
+                          ],
+                        ),
+                      );
+                      Future.delayed(Duration(seconds: 3), () {
+                        ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+                      });
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange[700],
+                      padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                    ),
+                    child: Text('Submit', style: TextStyle(color: Colors.white)),
+                  ),
+                ],
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }
@@ -554,13 +609,25 @@ class _DriverHelpState extends State<DriverHelp> {
     if (await canLaunchUrl(launchUri)) {
       await launchUrl(launchUri);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Could not launch phone dialer'),
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
+          content: Text(
+            'Could not launch phone dialer',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Colors.red[700],
-          behavior: SnackBarBehavior.floating,
+          leading: Icon(Icons.error, color: Colors.white),
+          actions: [
+            TextButton(
+              onPressed: () => ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+              child: Text('OK', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
       );
+      Future.delayed(Duration(seconds: 3), () {
+        ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+      });
     }
   }
 
@@ -573,13 +640,25 @@ class _DriverHelpState extends State<DriverHelp> {
     if (await canLaunchUrl(launchUri)) {
       await launchUrl(launchUri);
     } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Could not launch email client'),
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
+          content: Text(
+            'Could not launch email client',
+            style: TextStyle(color: Colors.white),
+          ),
           backgroundColor: Colors.red[700],
-          behavior: SnackBarBehavior.floating,
+          leading: Icon(Icons.error, color: Colors.white),
+          actions: [
+            TextButton(
+              onPressed: () => ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+              child: Text('OK', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
       );
+      Future.delayed(Duration(seconds: 3), () {
+        ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+      });
     }
   }
 }

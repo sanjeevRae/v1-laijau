@@ -845,6 +845,7 @@ class _HomePageState extends State<HomePage> {
             title: Text('Help & Support'),
             onTap: () {
               Navigator.pop(context);
+              Navigator.pushNamed(context, '/404');
             },
           ),
           ListTile(
@@ -1108,31 +1109,35 @@ class _HomePageState extends State<HomePage> {
     });
 
     // Show confirmation
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
+    ScaffoldMessenger.of(context).showMaterialBanner(
+      MaterialBanner(
         content: Row(
           children: [
-            Icon(Icons.check_circle, color: Colors.white),
+            Icon(Icons.check_circle, color: Colors.white, size: 20),
             SizedBox(width: 12),
             Expanded(
               child: Text(
                 'Location selected successfully!',
-                style: TextStyle(fontSize: 16),
+                style: TextStyle(fontSize: 16, color: Colors.white),
               ),
             ),
           ],
         ),
         backgroundColor: Colors.green[400],
-        behavior: SnackBarBehavior.floating,
-        margin: EdgeInsets.only(
-          top: 80,
-          left: 16,
-          right: 16,
-        ),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        duration: Duration(seconds: 2),
+        leading: SizedBox.shrink(),
+        actions: [
+          TextButton(
+            onPressed: () => ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+            child: Text('OK', style: TextStyle(color: Colors.white)),
+          ),
+        ],
       ),
     );
+    Future.delayed(Duration(seconds: 2), () {
+      if (mounted) {
+        ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+      }
+    });
   }
 
   void _centerOnCurrentLocation() async {
@@ -1140,23 +1145,30 @@ class _HomePageState extends State<HomePage> {
       _mapController.move(_currentPosition!, 15.0);
 
       // Provide haptic feedback if available
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
           content: Row(
             children: [
               Icon(Icons.my_location, color: Colors.white, size: 20),
               SizedBox(width: 12),
-              Text('Centered on your location'),
+              Text('Centered on your location', style: TextStyle(color: Colors.white)),
             ],
           ),
           backgroundColor: Colors.blue[700],
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          duration: Duration(seconds: 1),
+          leading: SizedBox.shrink(),
+          actions: [
+            TextButton(
+              onPressed: () => ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+              child: Text('OK', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
       );
+      Future.delayed(Duration(seconds: 1), () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+        }
+      });
     } else {
       // Try to get location if not available
       if (!mounted) return;
@@ -1172,42 +1184,58 @@ class _HomePageState extends State<HomePage> {
   void _bookRide() {
     // Validate inputs
     if (_fromController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
           content: Row(
             children: [
-              Icon(Icons.error, color: Colors.white),
+              Icon(Icons.error, color: Colors.white, size: 20),
               SizedBox(width: 12),
-              Text('Please enter pickup location'),
+              Text('Please enter pickup location', style: TextStyle(color: Colors.white)),
             ],
           ),
           backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          leading: SizedBox.shrink(),
+          actions: [
+            TextButton(
+              onPressed: () => ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+              child: Text('OK', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
       );
+      Future.delayed(Duration(seconds: 3), () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+        }
+      });
       return;
     }
 
     if (_toController.text.trim().isEmpty) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+      ScaffoldMessenger.of(context).showMaterialBanner(
+        MaterialBanner(
           content: Row(
             children: [
-              Icon(Icons.error, color: Colors.white),
+              Icon(Icons.error, color: Colors.white, size: 20),
               SizedBox(width: 12),
-              Text('Please enter destination'),
+              Text('Please enter destination', style: TextStyle(color: Colors.white)),
             ],
           ),
           backgroundColor: Colors.red,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
+          leading: SizedBox.shrink(),
+          actions: [
+            TextButton(
+              onPressed: () => ScaffoldMessenger.of(context).hideCurrentMaterialBanner(),
+              child: Text('OK', style: TextStyle(color: Colors.white)),
+            ),
+          ],
         ),
       );
+      Future.delayed(Duration(seconds: 3), () {
+        if (mounted) {
+          ScaffoldMessenger.of(context).hideCurrentMaterialBanner();
+        }
+      });
       return;
     }
 

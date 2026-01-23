@@ -12,6 +12,7 @@ import 'pages/home.dart';
 import 'pages/rider/rider_home.dart';
 import 'pages/driver/driver_home.dart';
 import 'pages/admin/admin_dashboard.dart';
+import 'pages/error_404.dart';
 import 'providers/auth_provider.dart';
 import 'providers/location_provider.dart';
 import 'providers/ride_provider.dart';
@@ -111,8 +112,8 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         onUnknownRoute: (settings) {
-          // Handle unknown routes gracefully
-          return MaterialPageRoute(builder: (context) => const WelcomeScreen());
+          // Handle unknown routes gracefully - show 404 page
+          return MaterialPageRoute(builder: (context) => const Error404Screen());
         },
         builder: (context, widget) {
           // Global error handling for widget tree
@@ -164,6 +165,7 @@ class MyApp extends StatelessWidget {
           '/rider': (context) => const RiderHome(),
           '/driver': (context) => const DriverHome(),
           '/admin': (context) => const AdminDashboard(),
+          '/404': (context) => const Error404Screen(),
         },
       ),
     );

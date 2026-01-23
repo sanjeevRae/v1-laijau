@@ -76,24 +76,26 @@ class _FareEstimationScreenState extends State<FareEstimationScreen> {
               left: 0,
               right: 0,
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 20),
+                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 24),
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
                       Colors.white,
+                      Colors.white.withOpacity(0.98),
                       Colors.grey[50]!,
                     ],
                     begin: Alignment.topCenter,
                     end: Alignment.bottomCenter,
                   ),
                   borderRadius: BorderRadius.vertical(
-                    bottom: Radius.circular(32),
+                    bottom: Radius.circular(36),
                   ),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.08),
-                      blurRadius: 20,
-                      offset: Offset(0, 8),
+                      color: Colors.black.withOpacity(0.06),
+                      blurRadius: 24,
+                      offset: Offset(0, 10),
+                      spreadRadius: 2,
                     ),
                   ],
                 ),
@@ -105,45 +107,73 @@ class _FareEstimationScreenState extends State<FareEstimationScreen> {
                         Container(
                           decoration: BoxDecoration(
                             color: Colors.white,
-                            borderRadius: BorderRadius.circular(12),
+                            borderRadius: BorderRadius.circular(14),
                             boxShadow: [
                               BoxShadow(
-                                color: Colors.black.withOpacity(0.05),
-                                blurRadius: 8,
-                                offset: Offset(0, 2),
+                                color: Colors.black.withOpacity(0.08),
+                                blurRadius: 12,
+                                offset: Offset(0, 3),
                               ),
                             ],
                           ),
-                          child: IconButton(
-                            icon: Icon(Icons.arrow_back, color: Colors.black87),
-                            onPressed: () => Navigator.pop(context),
-                            padding: EdgeInsets.all(10),
-                            constraints: BoxConstraints(),
+                          child: Material(
+                            color: Colors.transparent,
+                            child: InkWell(
+                              borderRadius: BorderRadius.circular(14),
+                              onTap: () => Navigator.pop(context),
+                              child: Padding(
+                                padding: EdgeInsets.all(12),
+                                child: Icon(Icons.arrow_back_ios_new, color: Colors.black87, size: 20),
+                              ),
+                            ),
                           ),
                         ),
-                        SizedBox(width: 16),
-                        Text(
-                          'Choose Your Ride',
-                          style: TextStyle(
-                            color: Colors.black87,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
+                        SizedBox(width: 18),
+                        Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Choose Your Ride',
+                              style: TextStyle(
+                                color: Colors.black87,
+                                fontSize: 22,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: -0.5,
+                              ),
+                            ),
+                            Text(
+                              'Select the best option',
+                              style: TextStyle(
+                                color: Colors.grey[600],
+                                fontSize: 13,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
-                    SizedBox(height: 20),
+                    SizedBox(height: 24),
                     // Route display
                     Container(
-                      padding: EdgeInsets.all(16),
+                      padding: EdgeInsets.all(20),
                       decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          colors: [
+                            Colors.white,
+                            Colors.grey[50]!,
+                          ],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.grey[200]!, width: 1.5),
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.black.withOpacity(0.05),
-                            blurRadius: 12,
-                            offset: Offset(0, 4),
+                            color: Colors.black.withOpacity(0.06),
+                            blurRadius: 16,
+                            offset: Offset(0, 6),
+                            spreadRadius: 1,
                           ),
                         ],
                       ),
@@ -153,15 +183,26 @@ class _FareEstimationScreenState extends State<FareEstimationScreen> {
                           Column(
                             children: [
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: Colors.green[50],
+                                  gradient: LinearGradient(
+                                    colors: [Colors.green[400]!, Colors.green[600]!],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
                                   shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.green.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
                                 ),
                                 child: Icon(
-                                  Icons.my_location,
-                                  color: Colors.green[700],
-                                  size: 18,
+                                  Icons.trip_origin,
+                                  color: Colors.white,
+                                  size: 16,
                                 ),
                               ),
                               Container(
@@ -180,15 +221,26 @@ class _FareEstimationScreenState extends State<FareEstimationScreen> {
                                 ),
                               ),
                               Container(
-                                padding: EdgeInsets.all(8),
+                                padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
-                                  color: Colors.red[50],
+                                  gradient: LinearGradient(
+                                    colors: [Colors.red[400]!, Colors.red[600]!],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
                                   shape: BoxShape.circle,
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.red.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
                                 ),
                                 child: Icon(
                                   Icons.location_on,
-                                  color: Colors.red[600],
-                                  size: 18,
+                                  color: Colors.white,
+                                  size: 16,
                                 ),
                               ),
                             ],
@@ -256,23 +308,34 @@ class _FareEstimationScreenState extends State<FareEstimationScreen> {
                           Column(
                             children: [
                               Container(
-                                padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                                padding: EdgeInsets.symmetric(horizontal: 14, vertical: 8),
                                 decoration: BoxDecoration(
-                                  color: Colors.green[50],
-                                  borderRadius: BorderRadius.circular(20),
-                                  border: Border.all(color: Colors.green[200]!, width: 1),
+                                  gradient: LinearGradient(
+                                    colors: [Colors.green[600]!, Colors.green[700]!],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(24),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.green.withOpacity(0.3),
+                                      blurRadius: 8,
+                                      offset: Offset(0, 3),
+                                    ),
+                                  ],
                                 ),
                                 child: Row(
                                   mainAxisSize: MainAxisSize.min,
                                   children: [
-                                    Icon(Icons.access_time, size: 14, color: Colors.green[700]),
-                                    SizedBox(width: 4),
+                                    Icon(Icons.bolt, size: 16, color: Colors.white),
+                                    SizedBox(width: 5),
                                     Text(
                                       '14 min',
                                       style: TextStyle(
-                                        color: Colors.green[700],
-                                        fontSize: 12,
+                                        color: Colors.white,
+                                        fontSize: 13,
                                         fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.3,
                                       ),
                                     ),
                                   ],
@@ -295,13 +358,21 @@ class _FareEstimationScreenState extends State<FareEstimationScreen> {
               right: 0,
               child: Container(
                 decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+                  gradient: LinearGradient(
+                    colors: [
+                      Colors.white,
+                      Colors.grey[50]!,
+                    ],
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                  ),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(32)),
                   boxShadow: [
                     BoxShadow(
-                      color: Colors.black.withOpacity(0.1),
-                      blurRadius: 20,
-                      offset: Offset(0, -5),
+                      color: Colors.black.withOpacity(0.12),
+                      blurRadius: 30,
+                      offset: Offset(0, -8),
+                      spreadRadius: 2,
                     ),
                   ],
                 ),
@@ -396,35 +467,61 @@ class _FareEstimationScreenState extends State<FareEstimationScreen> {
                           ),
                           SizedBox(width: 12),
                           Expanded(
-                            child: ElevatedButton(
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => SearchingRiderScreen(
-                                      fromLocation: widget.fromLocation,
-                                      toLocation: widget.toLocation,
-                                      vehicleType: _selectedVehicle,
-                                      estimatedFare: fares[_selectedVehicle]!,
-                                      autoAccept: _autoAccept,
-                                    ),
-                                  ),
-                                );
-                              },
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.green[700],
-                                foregroundColor: Colors.white,
-                                minimumSize: Size(double.infinity, 56),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
+                            child: Container(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [Colors.green[600]!, Colors.green[700]!],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
                                 ),
-                                elevation: 0,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.green.withOpacity(0.4),
+                                    blurRadius: 16,
+                                    offset: Offset(0, 6),
+                                  ),
+                                ],
                               ),
-                              child: Text(
-                                'Find offers',
-                                style: TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                              child: ElevatedButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => SearchingRiderScreen(
+                                        fromLocation: widget.fromLocation,
+                                        toLocation: widget.toLocation,
+                                        vehicleType: _selectedVehicle,
+                                        estimatedFare: fares[_selectedVehicle]!,
+                                        autoAccept: _autoAccept,
+                                      ),
+                                    ),
+                                  );
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: Colors.transparent,
+                                  foregroundColor: Colors.white,
+                                  shadowColor: Colors.transparent,
+                                  minimumSize: Size(double.infinity, 58),
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  ),
+                                  elevation: 0,
+                                ),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Icon(Icons.search, size: 22),
+                                    SizedBox(width: 10),
+                                    Text(
+                                      'Find Offers',
+                                      style: TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                        letterSpacing: 0.5,
+                                      ),
+                                    ),
+                                  ],
                                 ),
                               ),
                             ),
