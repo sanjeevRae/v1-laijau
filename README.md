@@ -15,6 +15,9 @@
 
 ## 📱 Laijau – Ride Sharing App
 
+![App Banner](https://chitratech.com.np/mobileview1-optimized.webp)
+
+
 **Laijau** is a complete ride‑sharing solution built with **Flutter** for riders, drivers, and administrators.  
 It features real‑time location tracking, fare estimation, live driver tracking, in‑app video calls, and WhatsApp OTP authentication – all powered by a **Go backend**.
 
