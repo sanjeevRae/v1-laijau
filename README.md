@@ -92,4 +92,15 @@ Open the following files and replace `YOUR_BACKEND_URL` with your actual backend
 static const String baseUrl = `YOUR_BACKEND_URL/api`;
 
 ---
+### 4. Run the app
+```bash
+Android
+flutter run -d android
+
+iOS (macOS only)
+flutter run -d ios
+
+Web
+flutter run -d chrome
+```
 <p align="center"> Built with 💙 using Flutter </p>
