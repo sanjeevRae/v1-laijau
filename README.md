@@ -84,8 +84,3 @@ Open the following files and replace `YOUR_BACKEND_URL` with your actual backend
 
 'lib/services/api_service.dart'
 static const String baseUrl = 'YOUR_BACKEND_URL/api';
-
-### 🤝 Contributing
-Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
-
-<p align="center"> Built with 💙 using Flutter </p>
