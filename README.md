@@ -103,4 +103,8 @@ flutter run -d ios
 Web
 flutter run -d chrome
 ```
+
+### 🤝 Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+```
 <p align="center"> Built with 💙 using Flutter </p>
