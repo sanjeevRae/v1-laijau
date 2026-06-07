@@ -88,9 +88,8 @@ flutter pub get
 
 Open the following files and replace `YOUR_BACKEND_URL` with your actual backend address (e.g., `http://192.168.1.100:8080` or `https://api.laijau.com`).
 
-```bash
 `lib/services/api_service.dart`
 static const String baseUrl = `YOUR_BACKEND_URL/api`;
-```
+
 ---
 <p align="center"> Built with 💙 using Flutter </p>
