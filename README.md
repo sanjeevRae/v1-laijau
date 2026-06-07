@@ -71,6 +71,8 @@ It features real‑time location tracking, fare estimation, live driver tracking
 - Android Studio / Xcode (for mobile builds)
 - A running **Go backend** (REST + WebSocket)
 
+---
+
 ### 1. Clone the repository
 
 git clone https://github.com/your-org/laijau-app.git
@@ -82,5 +84,8 @@ flutter pub get
 ### 3. Configure backend URLs
 Open the following files and replace `YOUR_BACKEND_URL` with your actual backend address (e.g., `http://192.168.1.100:8080` or `https://api.laijau.com`).
 
-'lib/services/api_service.dart'
-static const String baseUrl = 'YOUR_BACKEND_URL/api';
+`lib/services/api_service.dart`
+static const String baseUrl = `YOUR_BACKEND_URL/api`;
+
+---
+<p align="center"> Built with 💙 using Flutter </p>
