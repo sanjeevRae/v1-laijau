@@ -77,17 +77,20 @@ It features real‑time location tracking, fare estimation, live driver tracking
 ```bash
 git clone https://github.com/your-org/laijau-app.git
 cd laijau-app
+```
 
 ### 2. Install Flutter dependencies
 ```bash
 flutter pub get
+```
 
 ### 3. Configure backend URLs
 ```bash
 Open the following files and replace `YOUR_BACKEND_URL` with your actual backend address (e.g., `http://192.168.1.100:8080` or `https://api.laijau.com`).
-
+```
+```bash
 `lib/services/api_service.dart`
 static const String baseUrl = `YOUR_BACKEND_URL/api`;
-
+```
 ---
 <p align="center"> Built with 💙 using Flutter </p>
