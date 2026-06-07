@@ -73,6 +73,70 @@ It features real‑time location tracking, fare estimation, live driver tracking
 
 ### 1. Clone the repository
 
-```bash
 git clone https://github.com/your-org/laijau-app.git
 cd laijau-app
+
+### 2. Install Flutter dependencies
+flutter pub get
+
+### 3. Configure backend URLs
+Open the following files and replace `YOUR_BACKEND_URL` with your actual backend address (e.g., `http://192.168.1.100:8080` or `https://api.laijau.com`).
+
+'lib/services/api_service.dart'
+static const String baseUrl = 'YOUR_BACKEND_URL/api';
+
+### 4. Run the app
+
+# Android
+flutter run -d android
+
+# iOS (macOS only)
+flutter run -d ios
+
+# Web
+flutter run -d chrome
+
+### 📁 Project Structure
+lib/
+├── main.dart                 # App entry point
+├── models/                   # Data models (User, Ride, etc.)
+├── pages/                    
+│   ├── rider/               # Rider screens (home, booking, history)
+│   ├── driver/              # Driver screens (requests, earnings)
+│   ├── admin/               # Admin dashboard & panels
+│   └── widgets/             # Reusable UI components
+├── providers/                # State management (Provider)
+└── services/                 # API, WebSocket, Jitsi services
+
+
+### 🔌 Expected Backend API Endpoints
+Your Go backend should implement these minimal REST endpoints and WebSocket events.
+
+# Authentication
+
+Method	Endpoint	Description
+POST	/api/auth/send-otp	Send OTP via WhatsApp
+POST	/api/auth/verify-otp	Verify OTP & return JWT
+
+# Rides
+
+Method	Endpoint	Description
+POST	/api/rides/request	Create a new ride request
+POST	/api/rides/:id/accept	Driver accepts ride
+POST	/api/rides/:id/start	Start ride (pickup)
+POST	/api/rides/:id/complete	Complete ride & calculate fare
+GET	/api/rides/history	Get ride history for user
+
+# WebSocket Events (socket.io)
+
+Event name	Direction	Payload
+new_ride_request	Server → Drivers	Ride object (location, price)
+ride_update	Server → Rider	Status change (accepted, started, etc.)
+driver_location	Driver → Server	Current lat/lng (live tracking)
+driver_location	Server → Rider	Driver’s live position
+
+
+### 🤝 Contributing
+Pull requests are welcome. For major changes, please open an issue first to discuss what you would like to change.
+
+<p align="center"> Built with 💙 using Flutter </p>
